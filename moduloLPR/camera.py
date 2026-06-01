@@ -59,12 +59,16 @@ def camara_vigilancia():
                         # Filtro de precisión: Solo registramos si EasyOCR está seguro a más del 50%
                         if prob > 0.5:
                             texto_placa = text.upper().replace(" ", "").replace("-", "")
+                            if len(texto_placa) < 5: # Evitar falsos positivos de texto muy corto
+                                continue
+                            
                             
                             # Evitar registrar la misma placa repetidamente en segundos muy cercanos
-                            # (Opcional: puedes quitar esta validación si quieres que registre todo)
+ 
                             if historial_detecciones and historial_detecciones[0]['placa'] == texto_placa:
                                 # Si es la misma placa que acabamos de detectar hace un segundo, la ignoramos
                                 continue
+                            
                             
                             # 3. Convertir el frame con el cuadro verde a Base64 (Texto de imagen)
                             _, buffer = cv2.imencode('.jpg', frame)
@@ -114,7 +118,7 @@ while cap.isOpened():
             conf = box.conf[0]
             
             # Esta parte ya está filtrada, pero es bueno mantenerla
-            print(f"\n✅ ¡ACCESO CONCEDIDO! (Confianza: {conf:.2f})")
+            print(f"\n ¡ACCESO CONCEDIDO! (Confianza: {conf:.2f})")
             
             cv2.imwrite("ultimo_acceso.jpg", frame)
             
