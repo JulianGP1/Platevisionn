@@ -102,19 +102,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   return useContext(AuthContext);
 }
-const registrarVehiculo = async (placa: string, dueno: string) => {
-  const { error } = await supabase
-    .from('vehiculos')
-    .insert([
-      {
-        placa: placa,
-        dueno: dueno
-      }
-    ]);
-
-  if (error) {
-    console.error("Error:", error.message);
-  } else {
-    console.log("Vehículo registrado 🚗");
-  }
-};
