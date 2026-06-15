@@ -1,29 +1,21 @@
 import { useState, type FormEvent } from 'react';
-import { Navigate, Link, useSearchParams } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../ThemeContext';
-import { ScanLine, Eye, EyeOff, ChevronRight, AlertCircle, Check } from 'lucide-react';
-
-const PLANS = [
-  { id: 'free', name: 'Starter', price: 'Gratis' },
-  { id: 'pro', name: 'Pro', price: '$49/mes' },
-  { id: 'enterprise', name: 'Enterprise', price: '$149/mes' },
-];
+import { Eye, EyeOff, ChevronRight, AlertCircle } from 'lucide-react';
 
 export default function RegisterPage() {
   const { isDark } = useTheme();
   const { user, register } = useAuth();
-  const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [selectedPlan, setSelectedPlan] = useState(searchParams.get('plan') || 'free');
 
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/onboarding" replace />;
   }
 
   const validate = (): string | null => {
@@ -46,7 +38,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const { error: err } = await register(email, password, fullName, selectedPlan);
+      const { error: err } = await register(email, password, fullName);
       if (err) {
         setError(
           err.includes('already registered')
@@ -67,7 +59,7 @@ export default function RegisterPage() {
   
 
   return (
-    <div className={`min-h-screen flex items-center justify-center px-4 py-12 ${isDark ? 'bg-[#0f1117]' : 'bg-[#F8FAFC]'}`}>
+    <div className={`min-h-screen flex items-center justify-center px-4 py-12 ${isDark ? 'bg-[#0f1117]' : 'bg-[#F0F4F8]'}`}>
       <div className={`absolute inset-0 ${isDark ? 'bg-grid-pattern' : 'bg-grid-pattern-light'} bg-grid ${isDark ? 'opacity-[0.15]' : 'opacity-[0.10]'}`} />
 
       <div className="relative z-10 w-full max-w-md">
@@ -84,9 +76,11 @@ export default function RegisterPage() {
         >
           <div className="px-6 pt-6 pb-4 text-center border-b border-slate-200 dark:border-surface-border">
             <Link to="/" className="inline-flex items-center gap-2.5 mb-4">
-              <ScanLine className={`w-8 h-8 ${isDark ? 'text-accent-light' : 'text-slate-800'}`} />
+              <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
+                {/* Replace this div content with your custom logo icon */}
+              </div>
               <span className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                Vision<span className="text-accent-light">G</span>
+                Plate<span className="text-accent-light">Vision</span>
                 <span className={`${isDark ? 'text-slate-500' : 'text-slate-400'} font-medium ml-1.5`}>LPR</span>
               </span>
             </Link>
@@ -151,36 +145,6 @@ export default function RegisterPage() {
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
-              </div>
-            </div>
-
-            <div>
-              <label className={`block text-xs font-medium mb-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                Selecciona tu plan
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {PLANS.map((plan) => (
-                  <button
-                    key={plan.id}
-                    type="button"
-                    onClick={() => setSelectedPlan(plan.id)}
-                    className={`relative p-3 rounded-lg border text-center transition-all duration-200 ${
-                      selectedPlan === plan.id
-                        ? 'border-accent/50 bg-accent/8'
-                        : isDark
-                          ? 'border-surface-border bg-surface hover:border-slate-600'
-                          : 'border-slate-200 bg-slate-50 hover:border-slate-300'
-                    }`}
-                  >
-                    {selectedPlan === plan.id && (
-                      <div className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-accent-light flex items-center justify-center">
-                        <Check className="w-2 h-2 text-white" />
-                      </div>
-                    )}
-                    <p className={`text-xs font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{plan.name}</p>
-                    <p className={`text-[10px] mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>{plan.price}</p>
-                  </button>
-                ))}
               </div>
             </div>
 

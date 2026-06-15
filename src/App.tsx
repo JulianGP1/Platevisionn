@@ -6,18 +6,15 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+import OnboardingPage from './pages/OnboardingPage';
 import {
   ScanLine,
   Zap,
   Car,
-  Building2,
-  MapPin,
-  Truck,
   ChevronRight,
   Activity,
   Cpu,
   Radio,
-  Monitor,
   Check,
   Github,
   Mail,
@@ -33,13 +30,14 @@ import {
   Network,
 } from 'lucide-react';
 
-function VisionGLogo({ size = 'md' }: { size?: 'sm' | 'md' }) {
+function Logo({ size = 'md' }: { size?: 'sm' | 'md' }) {
   const { isDark } = useTheme();
   const dim = size === 'sm' ? 'w-6 h-6' : 'w-8 h-8';
-  const textColor = isDark ? 'text-accent-light' : 'text-slate-800';
 
   return (
-    <ScanLine className={`${dim} ${textColor}`} />
+    <div className={`${dim} rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center`}>
+      {/* Replace this div content with your custom logo icon */}
+    </div>
   );
 }
 
@@ -76,7 +74,7 @@ function BrandName({ size = 'md' }: { size?: 'sm' | 'md' }) {
   const textSize = size === 'sm' ? 'text-sm' : 'text-lg';
   return (
     <span className={`${textSize} font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-      Vision<span className="text-accent-light">G</span>
+      Plate<span className="text-accent-light">Vision</span>
       <span className={`${isDark ? 'text-slate-500' : 'text-slate-400'} font-medium ml-1.5`}>LPR</span>
     </span>
   );
@@ -86,11 +84,11 @@ function Navbar() {
   const { isDark } = useTheme();
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl ${isDark ? 'bg-[#0f1117]/80' : 'bg-white/80'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b ${isDark ? 'bg-[#0f1117]/80 border-surface-border' : 'bg-[#F0F4F8]/80 border-[#dde4ed]'}`}>
 
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <a href="#hero" className="flex items-center gap-2.5">
-          <VisionGLogo />
+          <Logo />
           <BrandName />
         </a>
         <div className={`hidden md:flex items-center gap-8 text-sm ${isDark ? 'text-slate-500' : 'text-slate-700'}`}>
@@ -134,7 +132,7 @@ function CameraPanel() {
         </div>
 
         <div className={`relative aspect-[4/3] overflow-hidden ${isDark ? 'bg-surface' : 'bg-slate-100'}`}>
-          <div className={`absolute inset-0 ${isDark ? 'bg-grid-pattern' : 'bg-grid-pattern-light'} bg-grid ${isDark ? 'opacity-[0.13]' : 'opacity-[0.15]'}`} />
+          {isDark && <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-[0.13]" />}
           <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent animate-scan-line" />
 
           <div className={`absolute top-5 left-5 w-6 h-6 border-t border-l ${isDark ? 'border-slate-700' : 'border-slate-400'}`} />
@@ -206,7 +204,11 @@ function HeroSection() {
 
   return (
     <section id="hero" className="relative min-h-screen pt-24 pb-16 overflow-hidden">
-      <div className={`absolute inset-0 ${isDark ? 'bg-grid-pattern' : 'bg-grid-pattern-light'} bg-grid ${isDark ? 'opacity-[0.15]' : 'opacity-[0.10]'}`} />
+      {isDark ? (
+        <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-[0.15]" />
+      ) : (
+        <div className="absolute inset-0 bg-slate-200/[0.03]" style={{ backgroundImage: 'linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+      )}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_30%,rgba(99,102,241,0.02)_0%,transparent_100%)]" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 flex items-center min-h-[calc(100vh-6rem)]">
@@ -473,7 +475,7 @@ function TechnologySection() {
 
   return (
     <section id="technology" ref={ref} className="relative py-24 overflow-hidden">
-      <div className={`absolute inset-0 ${isDark ? 'bg-grid-pattern' : 'bg-grid-pattern-light'} bg-grid ${isDark ? 'opacity-[0.12]' : 'opacity-[0.08]'}`} />
+      {isDark && <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-[0.12]" />}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(52,211,153,0.02)_0%,transparent_70%)]" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
@@ -574,30 +576,23 @@ function TechnologySection() {
 
 function UseCasesSection() {
   const { isDark } = useTheme();
-  const useCases = [
+
+  const scenarios = [
     {
-      icon: Building2,
-      title: 'Estacionamientos',
+      tag: 'Educacion',
+      title: 'Universidades',
       description:
-        'Acceso automatico sin tickets ni tarjetas. La matricula es la llave. Reduce costos operativos y elimina colas.',
-      features: ['Acceso sin contacto', 'Facturacion automatica', 'Reportes en tiempo real'],
-      image: 'https://images.pexels.com/photos/3769138/pexels-photo-3769138.jpeg?auto=compress&cs=tinysrgb&w=600',
+        'Control total de ingreso y salida en campus universitarios. Gestion de aforo en tiempo real, listas blancas para estudiantes y docentes, y restriccion automatica por pico y placa.',
+      cta: 'Ver solucion universitaria',
+      image: 'https://images.pexels.com/photos/1004409/pexels-photo-1004409.jpeg?auto=compress&cs=tinysrgb&w=800',
     },
     {
-      icon: MapPin,
-      title: 'Barrios Cerrados',
+      tag: 'Residencial',
+      title: 'Conjuntos y edificios',
       description:
-        'Seguridad perimetral inteligente. Identifica vehiculos autorizados al instante y alerta sobre accesos no permitidos.',
-      features: ['Lista blanca automatica', 'Alertas de intrusos', 'Registro de visitas'],
-      image: 'https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=600',
-    },
-    {
-      icon: Truck,
-      title: 'Control de Flotas',
-      description:
-        'Monitoreo completo de vehiculos empresariales. Rastreo de entrada y salida con datos precisos para logistica.',
-      features: ['Tracking en tiempo real', 'Control de horarios', 'Auditoria completa'],
-      image: 'https://images.pexels.com/photos/2199293/pexels-photo-2199293.jpeg?auto=compress&cs=tinysrgb&w=600',
+        'Acceso inteligente para residentes y visitantes. Alertas instantaneas ante vehiculos no autorizados, registro de visitas y control de cupos disponibles en el parqueadero.',
+      cta: 'Ver solucion residencial',
+      image: 'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=800',
     },
   ];
 
@@ -620,8 +615,7 @@ function UseCasesSection() {
 
   return (
     <section id="use-cases" ref={ref} className="relative py-24">
-      <div className={`absolute inset-0 ${isDark ? 'bg-grid-pattern' : 'bg-grid-pattern-light'} bg-grid ${isDark ? 'opacity-[0.12]' : 'opacity-[0.08]'}`} />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.01)_0%,transparent_70%)]" />
+      {isDark && <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-[0.12]" />}
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
@@ -637,101 +631,53 @@ function UseCasesSection() {
               isDark ? 'text-slate-500' : 'text-slate-600'
             } ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
           >
-            Adaptado a cada escenario de seguridad vehicular
+            Adaptado a las necesidades de cada lugar en Colombia
           </p>
         </div>
 
-        {/* Floating Dashboard Card */}
-        <div
-          className={`mb-20 transition-all duration-1000 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-          }`}
-          style={{ transitionDelay: '200ms' }}
-        >
-          <div className="max-w-4xl mx-auto">
-            <div
-              className={`relative rounded-2xl overflow-hidden animate-float ${
-                isDark ? 'border border-surface-border bg-surface-raised' : 'border border-slate-200 bg-white'
-              }`}
-              style={{
-                boxShadow: isDark
-                  ? '0 20px 60px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.03)'
-                  : '0 20px 60px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.03)',
-              }}
-            >
-              <div className={`flex items-center justify-between px-5 py-3 border-b ${isDark ? 'border-surface-border bg-surface-overlay' : 'border-slate-200 bg-slate-50'}`}>
-                <div className="flex items-center gap-3">
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Monitor className={`w-3.5 h-3.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
-                    <span className={`text-[11px] font-mono ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>VisionG Dashboard</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] font-mono text-emerald-500/80">Conectado</span>
-                </div>
-              </div>
-
-              <div className={`relative aspect-[16/8] flex items-center justify-center ${isDark ? 'bg-surface' : 'bg-slate-50'}`}>
-                <div className={`absolute inset-0 ${isDark ? 'bg-grid-pattern' : 'bg-grid-pattern-light'} bg-grid ${isDark ? 'opacity-[0.06]' : 'opacity-[0.08]'}`} />
-                <div className="relative z-10 text-center space-y-3">
-                  <div className="w-14 h-14 rounded-2xl bg-accent/8 border border-accent/15 flex items-center justify-center mx-auto">
-                    <Monitor className="w-7 h-7 text-accent-light/40" />
-                  </div>
-                  <p className={`text-sm font-light ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>Vista previa del dashboard</p>
-                </div>
-                <div className={`absolute left-4 top-4 bottom-4 w-1 rounded-full ${isDark ? 'bg-surface-border' : 'bg-slate-200'}`} />
-                <div className={`absolute right-4 top-4 bottom-4 w-1 rounded-full ${isDark ? 'bg-surface-border' : 'bg-slate-200'}`} />
-              </div>
-            </div>
-
-            <div className={`mx-8 h-2 rounded-b-xl blur-sm ${isDark ? 'bg-surface-raised/30' : 'bg-slate-200/30'}`} />
-            <div className={`mx-16 h-1.5 rounded-b-xl blur-md ${isDark ? 'bg-surface-raised/15' : 'bg-slate-200/15'}`} />
-          </div>
-        </div>
-
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {useCases.map((useCase, i) => (
+        {/* Tesla-style two-card grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {scenarios.map((scenario, i) => (
             <div
               key={i}
-              className={`surface-card-hover rounded-2xl overflow-hidden transition-all duration-700 ${
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
-              style={{ transitionDelay: `${500 + i * 150}ms` }}
+              className={`relative rounded-2xl overflow-hidden transition-all duration-700 ${
+                isDark ? 'bg-zinc-900/60 border border-white/8' : 'bg-[#f2f3f5]'
+              } ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              style={{ transitionDelay: `${300 + i * 150}ms`, minHeight: '260px' }}
             >
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={useCase.image}
-                  alt={useCase.title}
-                  className={`w-full h-full object-cover transition-opacity duration-500 ${isDark ? 'opacity-30' : 'opacity-50'}`}
-                />
-                <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-surface-raised via-surface-raised/80 to-transparent' : 'from-white via-white/80 to-transparent'}`} />
-                <div className="absolute top-4 left-4 w-9 h-9 rounded-lg bg-accent/8 border border-accent/15 flex items-center justify-center">
-                  <useCase.icon className="w-4 h-4 text-accent-light" />
+              {/* Text content */}
+              <div className="relative z-10 p-8 max-w-[55%] flex flex-col justify-between h-full" style={{ minHeight: '260px' }}>
+                <div className="space-y-3">
+                  <span className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                    {scenario.tag}
+                  </span>
+                  <h3 className={`text-2xl font-bold leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                    {scenario.title}
+                  </h3>
+                  <p className={`text-sm leading-relaxed font-light ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                    {scenario.description}
+                  </p>
                 </div>
+                <button
+                  className={`mt-6 self-start px-5 py-2.5 rounded-lg text-sm font-medium border transition-all duration-200 ${
+                    isDark
+                      ? 'border-white/20 text-white hover:bg-white/8'
+                      : 'border-slate-900/25 text-slate-900 bg-white hover:bg-slate-50'
+                  }`}
+                >
+                  {scenario.cta}
+                </button>
               </div>
 
-              <div className="p-6 space-y-4">
-                <h3 className={`text-lg font-semibold group-hover:text-accent-light transition-colors ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                  {useCase.title}
-                </h3>
-                <p className={`text-sm leading-relaxed font-light ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>
-                  {useCase.description}
-                </p>
-                <ul className="space-y-2.5 pt-1">
-                  {useCase.features.map((feature, j) => (
-                    <li key={j} className={`flex items-center gap-2.5 text-sm ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                      <div className="w-1 h-1 rounded-full bg-accent/60" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+              {/* Image — flush right, covers ~50% width */}
+              <div className="absolute inset-y-0 right-0 w-[50%] overflow-hidden">
+                <img
+                  src={scenario.image}
+                  alt={scenario.title}
+                  className={`w-full h-full object-cover object-center transition-transform duration-700 hover:scale-[1.03] ${isDark ? 'opacity-40' : 'opacity-90'}`}
+                />
+                {/* Fade from card bg into image */}
+                <div className={`absolute inset-y-0 left-0 w-24 ${isDark ? 'bg-gradient-to-r from-zinc-900/60 to-transparent' : 'bg-gradient-to-r from-[#f2f3f5] to-transparent'}`} />
               </div>
             </div>
           ))}
@@ -751,13 +697,13 @@ function CTASection() {
         <div className={`rounded-2xl p-12 sm:p-16 backdrop-blur-xl border transition-all duration-300 ${
           isDark
             ? 'bg-zinc-900/40 border-white/10'
-            : 'bg-white/10 border-white/20 bg-grid-pattern-light bg-grid'
+            : 'bg-white border-slate-200'
         }`}>
           <h2 className={`text-3xl sm:text-4xl font-medium tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
             Transforma tu <span className="text-accent-light">seguridad vehicular</span>
           </h2>
           <p className={`mt-4 text-base max-w-xl mx-auto font-light ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>
-            Implementa VisionG en tu infraestructura y experimenta el futuro del control de acceso.
+            Implementa PlateVision en tu infraestructura y experimenta el futuro del control de acceso.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link to="/login" className="btn-primary flex items-center gap-2 group">
@@ -846,7 +792,7 @@ function PricingSection() {
 
   return (
     <section id="pricing" ref={ref} className="relative py-24">
-      <div className={`absolute inset-0 ${isDark ? 'bg-grid-pattern' : 'bg-grid-pattern-light'} bg-grid ${isDark ? 'opacity-[0.12]' : 'opacity-[0.08]'}`} />
+      {isDark && <div className="absolute inset-0 bg-grid-pattern bg-grid opacity-[0.12]" />}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.01)_0%,transparent_70%)]" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6">
@@ -875,10 +821,10 @@ function PricingSection() {
                 plan.highlighted
                   ? isDark
                     ? 'border border-accent/40 bg-zinc-900/50 shadow-[0_0_40px_rgba(99,102,241,0.12)]'
-                    : 'border border-white/30 bg-white/15 shadow-[0_0_40px_rgba(99,102,241,0.08)] bg-grid-pattern-light bg-grid'
+                    : 'border border-accent/30 bg-white shadow-[0_0_40px_rgba(99,102,241,0.08)]'
                   : isDark
                     ? 'border border-white/10 bg-zinc-900/40'
-                    : 'border border-white/20 bg-white/10 bg-grid-pattern-light bg-grid'
+                    : 'border border-slate-200 bg-white'
               } ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
               style={{ transitionDelay: `${300 + i * 150}ms` }}
             >
@@ -955,7 +901,7 @@ function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex flex-col items-center sm:items-start gap-3">
             <div className="flex items-center gap-2">
-              <VisionGLogo size="sm" />
+              <Logo size="sm" />
               <BrandName size="sm" />
             </div>
             <div className="flex items-center gap-3">
@@ -978,7 +924,7 @@ function Footer() {
             </div>
           </div>
           <p className={`text-xs ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
-            &copy; 2026 VisionG. Todos los derechos reservados.
+            &copy; 2026 PlateVision. Todos los derechos reservados.
           </p>
         </div>
       </div>
@@ -1117,13 +1063,16 @@ function LandingPage() {
   const { isDark } = useTheme();
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0f1117]' : 'bg-[#F8FAFC]'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${isDark ? 'bg-[#0f1117]' : 'bg-[#F0F4F8]'}`}>
       <Navbar />
       <HeroSection />
-      <TechnologySection />
-      <UseCasesSection />
-      <CTASection />
-      <PricingSection />
+      {!isDark && <div style={{ height: '120px', background: 'linear-gradient(to bottom, #F0F4F8 0%, #F5F7FA 30%, #FAFBFC 60%, #ffffff 100%)' }} />}
+      <div className={isDark ? '' : 'bg-white'}>
+        <TechnologySection />
+        <UseCasesSection />
+        <CTASection />
+        <PricingSection />
+      </div>
       <Footer />
       <AccessibilityWidget />
     </div>
@@ -1139,6 +1088,14 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute>
+                  <OnboardingPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard"
               element={

@@ -7,7 +7,7 @@ interface AuthContextValue {
   session: Session | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ error: string | null }>;
-  register: (email: string, password: string, fullName: string, plan: string) => Promise<{ error: string | null }>;
+  register: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
   logout: () => Promise<void>;
 }
 
@@ -51,39 +51,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   //  REGISTER
-  const register = useCallback(async (email: string, password: string, fullName: string, plan: string) => {
-
-    // 1. Crear usuario en Auth
+  const register = useCallback(async (email: string, password: string, fullName: string) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { full_name: fullName, plan },
-      },
+      options: { data: { full_name: fullName } },
     });
 
     if (error) return { error: error.message };
 
     const newUser = data.user;
+    if (!newUser) return { error: 'No se pudo obtener el usuario creado' };
 
-    if (!newUser) {
-      return { error: "No se pudo obtener el usuario creado" };
-    }
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .upsert({ id: newUser.id, full_name: fullName, correo: email });
 
-    // 2. Insertar en tabla personalizada
-    const { error: insertError } = await supabase.from('usuario').insert([
-      {
-        id_usuario: newUser.id, // 
-        correo: email,
-        nombre: fullName,
-        plan: plan,
-      }
-    ]);
-
-    if (insertError) return { error: insertError.message };
+    if (profileError) return { error: profileError.message };
 
     return { error: null };
-
   }, []);
 
   // LOGOUT

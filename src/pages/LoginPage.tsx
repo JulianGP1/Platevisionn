@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Navigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../ThemeContext';
-import { ScanLine, Eye, EyeOff, ChevronRight, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, ChevronRight, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const { isDark } = useTheme();
@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
 
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/onboarding" replace />;
   }
 
   const isRegisterMode = searchParams.get('mode') === 'register';
@@ -63,7 +63,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className={`min-h-screen flex items-center justify-center px-4 py-12 ${isDark ? 'bg-[#0f1117]' : 'bg-[#F8FAFC]'}`}>
+    <div className={`min-h-screen flex items-center justify-center px-4 py-12 ${isDark ? 'bg-[#0f1117]' : 'bg-[#F0F4F8]'}`}>
       <div className={`absolute inset-0 ${isDark ? 'bg-grid-pattern' : 'bg-grid-pattern-light'} bg-grid ${isDark ? 'opacity-[0.15]' : 'opacity-[0.10]'}`} />
 
       <div className="relative z-10 w-full max-w-md">
@@ -80,9 +80,11 @@ export default function LoginPage() {
         >
           <div className="px-6 pt-6 pb-4 text-center border-b border-slate-200 dark:border-surface-border">
             <Link to="/" className="inline-flex items-center gap-2.5 mb-4">
-              <ScanLine className={`w-8 h-8 ${isDark ? 'text-accent-light' : 'text-slate-800'}`} />
+              <div className="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
+                {/* Replace this div content with your custom logo icon */}
+              </div>
               <span className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                Vision<span className="text-accent-light">G</span>
+                Plate<span className="text-accent-light">Vision</span>
                 <span className={`${isDark ? 'text-slate-500' : 'text-slate-400'} font-medium ml-1.5`}>LPR</span>
               </span>
             </Link>
@@ -90,7 +92,7 @@ export default function LoginPage() {
               Inicia sesion
             </h1>
             <p className={`mt-2 text-sm font-light ${isDark ? 'text-slate-500' : 'text-slate-600'}`}>
-              Accede a tu panel de VisionG
+              Accede a tu panel de PlateVision
             </p>
           </div>
 
