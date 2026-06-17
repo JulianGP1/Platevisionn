@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Trash2, Search, RefreshCw, X, Check } from 'lucide-react';
+import { Plus, Trash2, Search, RefreshCw, X, Check, ShieldAlert } from 'lucide-react';
 
 interface Props {
   projectId: string;
@@ -30,6 +30,9 @@ export default function VehiculosSection({ projectId, isDark, userRole, userPerm
   const [error, setError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
+  // 🔐 VALIDACIÓN DE PERMISOS EN FRONTEND (Corregido a MAYÚSCULAS para alinearse con la BD)
+  const puedeGestionar = userRole?.toUpperCase() === 'ADMIN' || userPermisos?.gestionar_camaras === true;
+
   const load = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
@@ -49,13 +52,20 @@ export default function VehiculosSection({ projectId, isDark, userRole, userPerm
   );
 
   const handleAdd = async () => {
+    if (!puedeGestionar) {
+      setError('No tienes permisos para registrar vehículos en este proyecto.');
+      return;
+    }
+
     const placa = form.placa.trim().toUpperCase();
     if (!placa) { setError('La placa es requerida'); return; }
     setSaving(true);
     setError(null);
+    
     const { error: err } = await supabase
       .from('vehiculos')
       .insert({ id_proyecto: projectId, placa, dueno: form.dueno.trim() || null });
+    
     setSaving(false);
     if (err) { setError(err.message); return; }
     setForm({ placa: '', dueno: '' });
@@ -64,6 +74,7 @@ export default function VehiculosSection({ projectId, isDark, userRole, userPerm
   };
 
   const handleDelete = async (id: number) => {
+    if (!puedeGestionar) return; 
     await supabase.from('vehiculos').delete().eq('id_carro', id);
     setDeleteId(null);
     load();
@@ -91,16 +102,28 @@ export default function VehiculosSection({ projectId, isDark, userRole, userPerm
             className={`bg-transparent outline-none text-sm w-full ${isDark ? 'text-white placeholder-slate-600' : 'text-slate-900 placeholder-slate-400'}`}
           />
         </div>
-        <button
-          onClick={() => { setShowAdd(true); setError(null); setForm({ placa: '', dueno: '' }); }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors">
-          <Plus className="w-4 h-4" />
-          Agregar vehículo
-        </button>
+        
+        {/* El botón de agregar solo aparece si tiene permisos reales */}
+        {puedeGestionar && (
+          <button
+            onClick={() => { setShowAdd(true); setError(null); setForm({ placa: '', dueno: '' }); }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors">
+            <Plus className="w-4 h-4" />
+            Agregar vehículo
+          </button>
+        )}
       </div>
 
+      {/* Advertencia visual si es un usuario sin permisos */}
+      {!puedeGestionar && (
+        <div className="flex items-center gap-2 p-3 text-xs rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
+          <ShieldAlert className="w-4 h-4 flex-shrink-0" />
+          <span>Modo lectura: No tienes permisos para modificar la lista de vehículos de este proyecto.</span>
+        </div>
+      )}
+
       {/* Add form */}
-      {showAdd && (
+      {showAdd && puedeGestionar && (
         <div className={`${card} p-5 space-y-4`}>
           <div className="flex items-center justify-between">
             <span className={`text-sm font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>Nuevo vehículo</span>
@@ -190,21 +213,24 @@ export default function VehiculosSection({ projectId, isDark, userRole, userPerm
                       {v.dueno ?? <span className="text-slate-500">—</span>}
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      {deleteId === v.id_carro ? (
-                        <div className="flex items-center justify-end gap-2">
-                          <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>¿Confirmar?</span>
-                          <button onClick={() => handleDelete(v.id_carro)}
-                            className="text-xs text-red-400 hover:text-red-300 font-medium">Eliminar</button>
-                          <button onClick={() => setDeleteId(null)}
-                            className={`text-xs ${isDark ? 'text-slate-500 hover:text-white' : 'text-slate-400 hover:text-slate-700'}`}>
-                            Cancelar
+                      {/* Oculta los controles de eliminación si el miembro actual no tiene permisos */}
+                      {puedeGestionar && (
+                        deleteId === v.id_carro ? (
+                          <div className="flex items-center justify-end gap-2">
+                            <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>¿Confirmar?</span>
+                            <button onClick={() => handleDelete(v.id_carro)}
+                              className="text-xs text-red-400 hover:text-red-300 font-medium">Eliminar</button>
+                            <button onClick={() => setDeleteId(null)}
+                              className={`text-xs ${isDark ? 'text-slate-500 hover:text-white' : 'text-slate-400 hover:text-slate-700'}`}>
+                              Cancelar
+                            </button>
+                          </div>
+                        ) : (
+                          <button onClick={() => setDeleteId(v.id_carro)}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors">
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
-                        </div>
-                      ) : (
-                        <button onClick={() => setDeleteId(v.id_carro)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        )
                       )}
                     </td>
                   </tr>

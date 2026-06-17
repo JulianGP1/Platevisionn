@@ -155,7 +155,8 @@ const handleCreateProject = async () => {
     setError(null);
     setBusy(true);
     try {
-      // 1. Perfil limpio (Supabase ya sabe que va a platevision)
+      // 1. Perfil limpio (Supabase y
+      // a sabe que va a platevision)
       await supabase
         .from('profiles')
         .upsert({ 

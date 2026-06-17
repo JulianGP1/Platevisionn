@@ -31,14 +31,8 @@ import {
 } from 'lucide-react';
 
 function Logo({ size = 'md' }: { size?: 'sm' | 'md' }) {
-  const { isDark } = useTheme();
-  const dim = size === 'sm' ? 'w-6 h-6' : 'w-8 h-8';
-
-  return (
-    <div className={`${dim} rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center`}>
-      {/* Replace this div content with your custom logo icon */}
-    </div>
-  );
+  // Retornamos null para que el componente no renderice absolutamente nada
+  return null; 
 }
 
 function AccessibilityIcon({ className }: { className?: string }) {
@@ -91,11 +85,11 @@ function Navbar() {
           <Logo />
           <BrandName />
         </a>
-        <div className={`hidden md:flex items-center gap-8 text-sm ${isDark ? 'text-slate-500' : 'text-slate-700'}`}>
-          <a href="#technology" className={`${isDark ? 'hover:text-slate-300' : 'hover:text-slate-900'} transition-colors`}>Tecnologia</a>
-          <a href="#use-cases" className={`${isDark ? 'hover:text-slate-300' : 'hover:text-slate-900'} transition-colors`}>Soluciones</a>
-          <a href="#pricing" className={`${isDark ? 'hover:text-slate-300' : 'hover:text-slate-900'} transition-colors`}>Precios</a>
-          <a href="#contact" className={`${isDark ? 'hover:text-slate-300' : 'hover:text-slate-900'} transition-colors`}>Contacto</a>
+        <div className="hidden md:flex items-center gap-8 text-sm font-semibold">
+          <a href="#technology" className={`transition-colors ${isDark ? 'text-slate-200 hover:text-white' : 'text-slate-800 hover:text-slate-950'}`}>Tecnologia</a>
+          <a href="#use-cases" className={`transition-colors ${isDark ? 'text-slate-200 hover:text-white' : 'text-slate-800 hover:text-slate-950'}`}>Soluciones</a>
+          <a href="#pricing" className={`transition-colors ${isDark ? 'text-slate-200 hover:text-white' : 'text-slate-800 hover:text-slate-950'}`}>Precios</a>
+          <a href="#contact" className={`transition-colors ${isDark ? 'text-slate-200 hover:text-white' : 'text-slate-800 hover:text-slate-950'}`}>Contacto</a>
         </div>
         <Link to="/login" className="btn-primary !px-5 !py-2 text-sm inline-flex items-center">
           Comenzar Ahora
@@ -635,49 +629,42 @@ function UseCasesSection() {
           </p>
         </div>
 
-        {/* Tesla-style two-card grid */}
+        {/* Full-bleed background image cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {scenarios.map((scenario, i) => (
             <div
               key={i}
-              className={`relative rounded-2xl overflow-hidden transition-all duration-700 ${
-                isDark ? 'bg-zinc-900/60 border border-white/8' : 'bg-[#f2f3f5]'
-              } ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-              style={{ transitionDelay: `${300 + i * 150}ms`, minHeight: '260px' }}
+              className={`group relative rounded-2xl overflow-hidden transition-all duration-700 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}
+              style={{ transitionDelay: `${300 + i * 150}ms`, minHeight: '360px' }}
             >
+              {/* Full-bleed background image */}
+              <img
+                src={scenario.image}
+                alt={scenario.title}
+                className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.04]"
+              />
+
+              {/* Gradient overlay — dark at bottom, lighter at top */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/20" />
+
               {/* Text content */}
-              <div className="relative z-10 p-8 max-w-[55%] flex flex-col justify-between h-full" style={{ minHeight: '260px' }}>
-                <div className="space-y-3">
-                  <span className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+              <div className="relative z-10 p-8 flex flex-col justify-end h-full" style={{ minHeight: '360px' }}>
+                <div className="space-y-2">
+                  <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-semibold">
                     {scenario.tag}
                   </span>
-                  <h3 className={`text-2xl font-bold leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                  <h3 className="text-2xl font-bold leading-tight text-white">
                     {scenario.title}
                   </h3>
-                  <p className={`text-sm leading-relaxed font-light ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                  <p className="text-sm leading-relaxed font-light text-white/75 max-w-sm">
                     {scenario.description}
                   </p>
                 </div>
-                <button
-                  className={`mt-6 self-start px-5 py-2.5 rounded-lg text-sm font-medium border transition-all duration-200 ${
-                    isDark
-                      ? 'border-white/20 text-white hover:bg-white/8'
-                      : 'border-slate-900/25 text-slate-900 bg-white hover:bg-slate-50'
-                  }`}
-                >
+                <button className="mt-5 self-start px-5 py-2.5 rounded-lg text-sm font-semibold border border-white/30 text-white bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-200">
                   {scenario.cta}
                 </button>
-              </div>
-
-              {/* Image — flush right, covers ~50% width */}
-              <div className="absolute inset-y-0 right-0 w-[50%] overflow-hidden">
-                <img
-                  src={scenario.image}
-                  alt={scenario.title}
-                  className={`w-full h-full object-cover object-center transition-transform duration-700 hover:scale-[1.03] ${isDark ? 'opacity-40' : 'opacity-90'}`}
-                />
-                {/* Fade from card bg into image */}
-                <div className={`absolute inset-y-0 left-0 w-24 ${isDark ? 'bg-gradient-to-r from-zinc-900/60 to-transparent' : 'bg-gradient-to-r from-[#f2f3f5] to-transparent'}`} />
               </div>
             </div>
           ))}

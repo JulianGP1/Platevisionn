@@ -47,6 +47,7 @@ export default function RegistrosSection({ projectId, isDark, userRole, userPerm
   const [filterDate, setFilterDate] = useState('');
 
   const load = useCallback(async () => {
+    
     setLoading(true);
     let q = supabase
       .from('registros_estadia')
@@ -55,7 +56,10 @@ export default function RegistrosSection({ projectId, isDark, userRole, userPerm
       .order('fecha_ingreso', { ascending: false })
       .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
 
-    if (filterEstado !== 'all') q = q.eq('estado', filterEstado);
+    if (filterEstado !== 'all') {
+    const estadoBD = filterEstado === 'adentro' ? 'ADENTRO' : 'AFUERA'; 
+    q = q.eq('estado', estadoBD);
+}
     if (filterDate) {
       const start = `${filterDate}T00:00:00`;
       const end = `${filterDate}T23:59:59`;
@@ -66,6 +70,7 @@ export default function RegistrosSection({ projectId, isDark, userRole, userPerm
     setRows((data ?? []) as Registro[]);
     setTotal(count ?? 0);
     setLoading(false);
+    
   }, [projectId, page, filterEstado, filterDate]);
 
   useEffect(() => { setPage(0); }, [filterEstado, filterDate]);
@@ -134,34 +139,86 @@ export default function RegistrosSection({ projectId, isDark, userRole, userPerm
                 </tr>
               </thead>
               <tbody className={`divide-y ${isDark ? 'divide-[#1e1e2a]' : 'divide-slate-100'}`}>
-                {rows.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className={`text-center py-12 text-sm ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
-                      Sin registros
-                    </td>
-                  </tr>
-                )}
-                {rows.map(r => (
-                  <tr key={r.id_registro} className={`transition-colors ${isDark ? 'hover:bg-[#0f1117]' : 'hover:bg-slate-50'}`}>
-                    <td className={`${td} text-xs text-slate-500`}>#{r.id_registro}</td>
-                    <td className={td}>
-                      <span className="font-mono font-bold text-emerald-400 tracking-wider">{r.placa_capturada}</span>
-                    </td>
-                    <td className={`${td} text-xs`}>{fmtDatetime(r.fecha_ingreso)}</td>
-                    <td className={`${td} text-xs`}>{fmtDatetime(r.fecha_salida)}</td>
-                    <td className={`${td} text-xs font-medium`}>{calcDuration(r.fecha_ingreso, r.fecha_salida)}</td>
-                    <td className={td}>
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium
-                        ${r.estado === 'adentro'
-                          ? 'bg-emerald-500/15 text-emerald-400'
-                          : 'bg-slate-500/15 text-slate-400'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${r.estado === 'adentro' ? 'bg-emerald-400' : 'bg-slate-400'}`} />
-                        {r.estado === 'adentro' ? 'Adentro' : 'Salido'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+  {rows.length === 0 && (
+    <tr>
+      <td colSpan={6} className={`text-center py-12 text-sm ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
+        Sin registros
+      </td>
+    </tr>
+  )}
+  {rows.map(r => (
+    <tr key={r.id_registro} className={`transition-colors ${isDark ? 'hover:bg-[#0f1117]' : 'hover:bg-slate-50'}`}>
+      <td className={`${td} text-xs text-slate-500`}>#{r.id_registro}</td>
+      
+      {/* Columna de Placa */}
+      <td className={td}>
+        <span className="font-mono font-bold text-emerald-400 tracking-wider">{r.placa_capturada}</span>
+      </td>
+      
+      {/* Columna de Ingreso con Miniatura */}
+      <td className={`${td} text-xs`}>
+        <div className="flex items-center gap-2">
+          {r.foto_entrada_url ? (
+            <div className="relative group w-8 h-8 rounded-md overflow-hidden bg-slate-800 border border-emerald-500/20 flex-shrink-0 cursor-pointer">
+              <img 
+                src={r.foto_entrada_url} 
+                alt="Entrada" 
+                className="w-full h-full object-cover transition-transform group-hover:scale-110"
+              />
+              {/* Miniatura flotante que se agranda al pasar el mouse */}
+              <div className="absolute hidden group-hover:block bottom-10 left-0 z-50 w-48 h-32 rounded-lg overflow-hidden shadow-2xl border border-slate-700 bg-black">
+                <img src={r.foto_entrada_url} className="w-full h-full object-cover" />
+              </div>
+            </div>
+          ) : (
+            <div className="w-8 h-8 rounded-md bg-slate-800/40 border border-dashed border-slate-700 flex items-center justify-center text-[10px] text-slate-600 flex-shrink-0">
+              No px
+            </div>
+          )}
+          <div>{fmtDatetime(r.fecha_ingreso)}</div>
+        </div>
+      </td>
+
+      {/* Columna de Salida con Miniatura */}
+      <td className={`${td} text-xs`}>
+        <div className="flex items-center gap-2">
+          {r.foto_salida_url ? (
+            <div className="relative group w-8 h-8 rounded-md overflow-hidden bg-slate-800 border border-slate-700/50 flex-shrink-0 cursor-pointer">
+              <img 
+                src={r.foto_salida_url} 
+                alt="Salida" 
+                className="w-full h-full object-cover transition-transform group-hover:scale-110"
+              />
+              {/* Miniatura flotante que se agranda al pasar el mouse */}
+              <div className="absolute hidden group-hover:block bottom-10 left-0 z-50 w-48 h-32 rounded-lg overflow-hidden shadow-2xl border border-slate-700 bg-black">
+                <img src={r.foto_salida_url} className="w-full h-full object-cover" />
+              </div>
+            </div>
+          ) : (
+            <div className="w-8 h-8 rounded-md bg-slate-800/20 border border-dashed border-slate-800 flex items-center justify-center text-[10px] text-slate-600 flex-shrink-0">
+              —
+            </div>
+          )}
+          <div>{fmtDatetime(r.fecha_salida)}</div>
+        </div>
+      </td>
+
+      {/* Duración */}
+      <td className={`${td} text-xs font-medium`}>{calcDuration(r.fecha_ingreso, r.fecha_salida)}</td>
+      
+      {/* Columna de Estado soportando 'A' o 'adentro' */}
+      <td className={td}>
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium
+          ${r.estado === 'A' || r.estado === 'adentro'
+            ? 'bg-emerald-500/15 text-emerald-400'
+            : 'bg-slate-500/15 text-slate-400'}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${r.estado === 'A' || r.estado === 'adentro' ? 'bg-emerald-400' : 'bg-slate-400'}`} />
+          {r.estado === 'A' || r.estado === 'adentro' ? 'Adentro' : 'Salido'}
+        </span>
+      </td>
+    </tr>
+  ))}
+</tbody>
             </table>
           </div>
         )}
