@@ -95,13 +95,44 @@ function InviteModal({ isDark, projectId, onClose, onSuccess }: InviteModalProps
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const { user } = useAuth();
+  const [validating, setValidating] = useState(false);
 
-  const handleNextFromEmail = () => {
-    const trimmed = email.trim().toLowerCase();
-    if (!trimmed || !trimmed.includes('@')) { setError('Ingresa un correo válido'); return; }
-    setError(null);
-    setStep('permisos');
-  };
+  const handleNextFromEmail = async () => {
+  const trimmed = email.trim().toLowerCase();
+  if (!trimmed || !trimmed.includes('@')) {
+    setError('Ingresa un correo válido');
+    return;
+  }
+
+   if (trimmed === user?.email) {
+    setError('No puedes invitarte a ti mismo.');
+    return;
+  }
+
+  setValidating(true);
+  setError(null);
+
+  const { data, error: dbError } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('correo', trimmed)
+    .maybeSingle();
+
+  setValidating(false);
+
+  if (dbError) {
+    setError('Error al verificar el correo. Intenta de nuevo.');
+    return;
+  }
+
+  if (!data) {
+    setError('Este correo no está registrado en PlateVision. El usuario debe crear una cuenta primero.');
+    return;
+  }
+
+  setStep('permisos');
+};
 
   const handleGenerate = async () => {
     setSaving(true);
@@ -284,10 +315,14 @@ function InviteModal({ isDark, projectId, onClose, onSuccess }: InviteModalProps
                 {step === 'email' ? 'Cancelar' : 'Atrás'}
               </button>
               {step === 'email' && (
-                <button onClick={handleNextFromEmail}
-                  className="flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors">
-                  Siguiente
-                  <ChevronRight className="w-4 h-4" />
+                <button
+                  onClick={handleNextFromEmail}
+                  disabled={validating}
+                  className="flex items-center gap-2 px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors disabled:opacity-60">
+                  {validating
+                    ? <RefreshCw className="w-4 h-4 animate-spin" />
+                    : <ChevronRight className="w-4 h-4" />}
+                  {validating ? 'Verificando...' : 'Siguiente'}
                 </button>
               )}
               {step === 'permisos' && (
