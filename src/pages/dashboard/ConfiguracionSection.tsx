@@ -257,8 +257,8 @@ export default function ConfiguracionSection({
             </p>
             {[
               { key: 'SUPABASE_URL', value: import.meta.env.VITE_SUPABASE_URL },
-              { key: 'SUPABASE_KEY', value: import.meta.env.VITE_SUPABASE_ANON_KEY },
-              { key: 'PROJECT_ID',   value: projectId },
+              { key: 'SUPABASE_KEY', value: 'clave dada' },
+              { key: 'ID_PROYECTO',   value: projectId },
             ].map(({ key, value }) => (
               <div key={key} className="flex items-center gap-2">
                 <span className="text-xs font-mono text-emerald-400 flex-shrink-0">{key}=</span>

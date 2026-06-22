@@ -15,7 +15,7 @@ import VehiculosSection from './dashboard/VehiculosSection';
 import CamarasSection from './dashboard/CamarasSection';
 import MiembrosSection from './dashboard/MiembrosSection';
 import ListaNegraSection from './dashboard/ListaNegraSection';
-
+import AlertaListaNegra from './dashboard/AlertaListaNegra';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Section = 'overview' | 'registros' | 'vehiculos' | 'camaras' | 'lista-negra' | 'miembros' | 'configuracion';
@@ -371,8 +371,10 @@ export default function DashboardPage() {
             />
           )}
 
+
         </main>
       </div>
+      <AlertaListaNegra projectId={projectId} isDark={isDark} />
     </div>
   );
 }
