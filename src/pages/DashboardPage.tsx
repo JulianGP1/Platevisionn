@@ -5,10 +5,11 @@ import { useTheme } from '../ThemeContext';
 import { supabase } from '../lib/supabaseClient';
 import {
   LayoutDashboard, ClipboardList, Car, Camera, ShieldBan, Users,
-  ChevronLeft, ChevronRight, LogOut, Menu, X, Sun, Moon, ArrowLeft,
+  ChevronLeft, ChevronRight, LogOut, Menu, X, ArrowLeft, Settings,
 } from 'lucide-react';
 
 import OverviewSection from './dashboard/OverviewSection';
+import ConfiguracionSection from './dashboard/ConfiguracionSection';
 import RegistrosSection from './dashboard/RegistrosSection';
 import VehiculosSection from './dashboard/VehiculosSection';
 import CamarasSection from './dashboard/CamarasSection';
@@ -17,7 +18,7 @@ import ListaNegraSection from './dashboard/ListaNegraSection';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Section = 'overview' | 'registros' | 'vehiculos' | 'camaras' | 'lista-negra' | 'miembros';
+type Section = 'overview' | 'registros' | 'vehiculos' | 'camaras' | 'lista-negra' | 'miembros' | 'configuracion';
 
 interface NavItem {
   id: Section;
@@ -35,12 +36,13 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 const SECTION_TITLE: Record<Section, string> = {
-  'overview':    'Resumen del Proyecto',
-  'registros':   'Registros de Estadía',
-  'vehiculos':   'Lista Blanca de Vehículos',
-  'camaras':     'Cámaras LPR',
-  'lista-negra': 'Lista Negra',
-  'miembros':    'Miembros del Proyecto',
+  'overview':       'Resumen del Proyecto',
+  'registros':      'Registros de Estadía',
+  'vehiculos':      'Lista Blanca de Vehículos',
+  'camaras':        'Cámaras LPR',
+  'lista-negra':    'Lista Negra',
+  'miembros':       'Miembros del Proyecto',
+  'configuracion':  'Configuración del Proyecto',
 };
 
 
@@ -49,14 +51,13 @@ const SECTION_TITLE: Record<Section, string> = {
 
 function Logo({ collapsed }: { collapsed: boolean }) {
   return (
-    <div className={`flex items-center gap-2.5 overflow-hidden ${collapsed ? 'justify-center' : ''}`}>
-      <div className="w-8 h-8 flex-shrink-0 rounded-lg bg-emerald-500/20 border border-emerald-500/30
-        flex items-center justify-center">
-        <Camera className="w-4 h-4 text-emerald-400" />
-      </div>
-      {!collapsed && (
+    <div className={`flex items-center overflow-hidden ${collapsed ? 'justify-center' : 'justify-center w-full'}`}>
+      {collapsed ? (
+        <span className="text-base font-bold tracking-tight text-white">PV</span>
+      ) : (
         <span className="text-base font-bold tracking-tight text-white whitespace-nowrap">
           Plate<span className="text-emerald-400">Vision</span>
+          <span className="text-slate-500 font-medium"> LPR</span>
         </span>
       )}
     </div>
@@ -74,12 +75,11 @@ interface SidebarProps {
   onCollapse: () => void;
   onLogout: () => void;
   onChangeProject: () => void;
-  onToggleTheme: () => void;
 }
 
 function Sidebar({
   collapsed, activeSection, isDark, projectName,
-  onNavigate, onCollapse, onLogout, onChangeProject, onToggleTheme,
+  onNavigate, onCollapse, onLogout, onChangeProject,
 }: SidebarProps) {
   const bg = isDark ? 'bg-[#0a0a0f] border-[#1e1e2a]' : 'bg-white border-slate-200';
 
@@ -139,15 +139,23 @@ function Sidebar({
 
       {/* Footer */}
       <div className={`px-2 py-3 border-t space-y-0.5 ${isDark ? 'border-[#1e1e2a]' : 'border-slate-200'}`}>
-        {/* Theme toggle */}
+        {/* Configuracion */}
         <button
-          onClick={onToggleTheme}
-          title={collapsed ? 'Cambiar tema' : undefined}
+          onClick={() => onNavigate('configuracion')}
+          title={collapsed ? 'Configuración' : undefined}
           className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors
             ${collapsed ? 'justify-center' : ''}
-            ${isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800/70' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`}>
-          {isDark ? <Sun className="w-4 h-4 flex-shrink-0" /> : <Moon className="w-4 h-4 flex-shrink-0" />}
-          {!collapsed && <span>{isDark ? 'Modo claro' : 'Modo oscuro'}</span>}
+            ${activeSection === 'configuracion'
+              ? 'bg-emerald-500/15 text-emerald-400'
+              : isDark
+                ? 'text-slate-400 hover:text-white hover:bg-slate-800/70'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+            }`}>
+          <Settings className="w-4 h-4 flex-shrink-0" />
+          {!collapsed && <span>Configuración</span>}
+          {activeSection === 'configuracion' && !collapsed && (
+            <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          )}
         </button>
 
         {/* Change project */}
@@ -270,7 +278,6 @@ export default function DashboardPage() {
           onCollapse={() => setCollapsed(c => !c)}
           onLogout={handleLogout}
           onChangeProject={handleChangeProject}
-          onToggleTheme={toggleTheme}
         />
       </div>
 
@@ -350,6 +357,17 @@ export default function DashboardPage() {
               isDark={isDark}
               userRole={userRole}
               userPermisos={userPermisos}
+            />
+          )}
+
+          {section === 'configuracion' && (
+            <ConfiguracionSection
+              projectId={projectId}
+              isDark={isDark}
+              projectName={projectName}
+              onProjectNameChange={setProjectName}
+              onDeleteProject={handleChangeProject}
+              onToggleTheme={toggleTheme}
             />
           )}
 
